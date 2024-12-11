@@ -1,6 +1,4 @@
 package com.currency.calculation.rest;
-
-
 import com.currency.calculation.response.CalculationResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
