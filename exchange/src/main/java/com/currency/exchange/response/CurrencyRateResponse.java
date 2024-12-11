@@ -5,7 +5,7 @@ public class CurrencyRateResponse {
     private String from;
     private double rate;
 
-    public CurrencyRateResponse(String to, String from, double rate) {
+    public CurrencyRateResponse(String from, String to, double rate) {
         this.to = to;
         this.from = from;
         this.rate = rate;

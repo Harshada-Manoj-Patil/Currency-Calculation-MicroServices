@@ -2,9 +2,8 @@ package com.currency.exchange.entity;
 
 import jakarta.persistence.*;
 
-@Entity(name = "CurrencyRate")
-@Table(name = "currency")
-public class CurrencyRate {
+@Entity(name = "currency")
+public class Currency {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
