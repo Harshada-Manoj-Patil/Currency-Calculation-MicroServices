@@ -24,29 +24,49 @@ public class CalculationController {
             summary = "Calculate Currency",
             description = "Calculate Currency based on exchange rate retrieved from currency-exchange API"
     )
+
+
     @GetMapping("/currency-calculation/from/{from}/to/{to}/amount/{amount}")
-    public CalculationResponse currencyConvert(@PathVariable String from, @PathVariable String to, @PathVariable double amount) {
+    public ResponseEntity<CalculationResponse> currencyConvert(
+            @PathVariable String from,
+            @PathVariable String to,
+            @PathVariable double amount) {
+
+        // Define the URI variables
         Map<String, String> uriVariables = new HashMap<>();
         uriVariables.put("from", from);
         uriVariables.put("to", to);
-        ResponseEntity<CalculationResponse> responseEntity=new RestTemplate()
-                .getForEntity("http://localhost:8000/currency-rate/from/{from}/to/{to}", CalculationResponse.class, uriVariables);
+
+        // Initialize response object
         CalculationResponse currencyExchangeResponse = new CalculationResponse();
+        currencyExchangeResponse.setFrom(from);
+        currencyExchangeResponse.setTo(to);
+        currencyExchangeResponse.setAmount(amount);
 
-            currencyExchangeResponse.setTo(to);
-            currencyExchangeResponse.setFrom(from);
-            currencyExchangeResponse.setAmount(amount);
-        if(null !=responseEntity.getBody()) {
-            currencyExchangeResponse.setRate(Objects.requireNonNull(responseEntity.getBody()).getRate());
-            currencyExchangeResponse.setConvertedAmount(Objects.requireNonNull(responseEntity.getBody()).getRate() * amount);
-            currencyExchangeResponse.setMessage("data found");
-        } else {
-          currencyExchangeResponse.setRate(0);
-          currencyExchangeResponse.setConvertedAmount(0);
-          currencyExchangeResponse.setMessage("No data found");
+        try {
+            // Call the currency exchange API
+            ResponseEntity<CalculationResponse> responseEntity = new RestTemplate()
+                    .getForEntity("http://localhost:8000/currency-rate/from/{from}/to/{to}",
+                            CalculationResponse.class, uriVariables);
 
+            // If the response body is present, process the exchange rate
+            if (responseEntity.getBody() != null) {
+                double rate = Objects.requireNonNull(responseEntity.getBody()).getRate();
+                currencyExchangeResponse.setRate(rate);
+                currencyExchangeResponse.setConvertedAmount(rate * amount);
+                currencyExchangeResponse.setMessage("Data found");
+            } else {
+                throw new RuntimeException("Empty response from currency exchange API");
+            }
+        } catch (Exception ex) {
+            // Handle case where API fails or record is not found
+            currencyExchangeResponse.setRate(0.0);
+            currencyExchangeResponse.setConvertedAmount(0.0);
+            currencyExchangeResponse.setMessage("No data found: " + ex.getMessage());
         }
-        return currencyExchangeResponse;
+
+        // Return the response entity
+        return ResponseEntity.ok(currencyExchangeResponse);
     }
 
-}
+    }

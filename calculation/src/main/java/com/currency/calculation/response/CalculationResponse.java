@@ -46,7 +46,7 @@ public class CalculationResponse {
     }
 
     public double getAmount() {
-        return amount;
+        return this.amount;
     }
 
     public void setAmount(double amount) {
