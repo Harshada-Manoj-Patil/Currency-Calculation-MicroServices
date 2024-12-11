@@ -55,7 +55,7 @@ public class CurrencyExchangeControllerTest {
 
         // Act & Assert
         mockMvc.perform(get("/currency-rate/from/{from}/to/{to}", from, to))
-                .andExpect(status().isOk()) // Assuming the API returns null instead of 404
-                .andExpect(content().string(""));
+                .andExpect(status().isNotFound()) // Assuming the API returns null instead of 404
+                .andExpect(content().string("Currency rate not found"));
     }
 }

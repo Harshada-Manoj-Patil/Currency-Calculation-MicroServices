@@ -8,9 +8,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Optional;
+
 @Tag(
         name = "REST API",
         description = "REST APIs for Exchange microservice for currency calculation"
@@ -41,8 +45,19 @@ public class CurrencyExchangeController {
     })*/
 
 
-    @GetMapping("/currency-rate/from/{from}/to/{to}")  //http://localhost:8080/currency-rate/from/USD/to/INR
+    /*@GetMapping("/currency-rate/from/{from}/to/{to}")  //http://localhost:8080/currency-rate/from/USD/to/INR
     CurrencyRateResponse currencyRate(@PathVariable String from, @PathVariable String to) {
         return currencyRepository.findByFromAndTo(from, to);
+    }*/
+
+    @GetMapping("/currency-rate/from/{from}/to/{to}")  //http://localhost:8080/currency-rate/from/USD/to/INR
+    ResponseEntity<?> currencyRate(@PathVariable String from, @PathVariable String to) {
+        Optional<CurrencyRateResponse> currencyRateResponse = Optional.ofNullable(currencyRepository.findByFromAndTo(from, to));
+
+        if (currencyRateResponse.isPresent()) {
+            return ResponseEntity.ok(currencyRateResponse.get());
+        } else {
+            return ResponseEntity.status(404).body("Currency rate not found");
+        }
     }
 }
