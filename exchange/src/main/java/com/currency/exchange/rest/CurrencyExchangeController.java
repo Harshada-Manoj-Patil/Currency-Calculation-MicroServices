@@ -17,7 +17,7 @@ import java.util.Optional;
 
 @Tag(
         name = "REST API",
-        description = "REST APIs for Exchange microservice for currency calculation"
+        description = "REST APIs for Exchange microservice to return exchange rates."
 )
 
 @RestController
