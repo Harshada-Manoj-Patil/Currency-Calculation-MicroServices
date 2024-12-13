@@ -1,86 +1,60 @@
 package com.currency.calculation.rest;
 
-
 import com.currency.calculation.response.CalculationResponse;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Bean;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
+
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
-@WebMvcTest(CalculationController.class)
+
+@SpringBootTest
 public class CalculationControllerTest {
-   @Autowired
-    private MockMvc mockMvc;
-   @Bean
-    public RestTemplate restTemplate() {
-       return new RestTemplate();
-   }
 
-   @BeforeEach
-    void setUp() {
-       Mockito.reset(new RestTemplate());
-   }
-@Test
-private void testCurrencyConvert_success() {
+    @InjectMocks
+    private CalculationController calculationController;
+
+    @Mock
+    private RestTemplate restTemplate;
+
+    @Test
+    public void testCurrencyConvertSuccess() {
+        // Mock REST API response
+        MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
+
+        Map<String, String> uriVariables = new HashMap<>();
+        uriVariables.put("from", "SGD");
+        uriVariables.put("to", "INR");
+
+        ResponseEntity<CalculationResponse> responseEntity = new RestTemplate()
+                .getForEntity("http://localhost:8000/currency-rate/from/{from}/to/{to}",
+                        CalculationResponse.class, uriVariables);
+
+        // Call the controller method
+        ResponseEntity<CalculationResponse> response = calculationController.currencyConvert(Objects.requireNonNull(responseEntity.getBody()).getFrom(), responseEntity.getBody().getTo(), 100.0);
+
+        // Assertions
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(Objects.requireNonNull(response.getBody()).getFrom(), is(responseEntity.getBody().getFrom()));
+        assertThat(Objects.requireNonNull(response.getBody()).getTo(), is(responseEntity.getBody().getTo()));
+        assertThat(response.getBody().getRate(), is(responseEntity.getBody().getRate()));
+        assertThat(response.getBody().getConvertedAmount(), is(responseEntity.getBody().getRate() * 100.0));
+        assertThat(response.getBody().getMessage(), is("Data found"));
+
+        mockServer.verify();
+    }
+
 
 }
-    @GetMapping("/currency-calculation/from/{from}/to/{to}/amount/{amount}")
-    public ResponseEntity<CalculationResponse> currencyConvert(
-            @PathVariable String from,
-            @PathVariable String to,
-            @PathVariable double amount) {
-
-        // Define the URI variables
-        Map<String, String> uriVariables = new HashMap<>();
-        uriVariables.put("from", from);
-        uriVariables.put("to", to);
-
-        // Initialize response object
-        CalculationResponse currencyExchangeResponse = new CalculationResponse();
-        currencyExchangeResponse.setFrom(from);
-        currencyExchangeResponse.setTo(to);
-        currencyExchangeResponse.setAmount(amount);
-
-        try {
-            // Call the currency exchange API
-            ResponseEntity<CalculationResponse> responseEntity = new RestTemplate()
-                    .getForEntity("http://localhost:8000/currency-rate/from/{from}/to/{to}",
-                            CalculationResponse.class, uriVariables);
-
-            // If the response body is present, process the exchange rate
-            if (responseEntity.getBody() != null) {
-                double rate = Objects.requireNonNull(responseEntity.getBody()).getRate();
-                currencyExchangeResponse.setRate(rate);
-                currencyExchangeResponse.setConvertedAmount(rate * amount);
-                currencyExchangeResponse.setMessage("Data found");
-            } else {
-                throw new RuntimeException("Empty response from currency exchange API");
-            }
-        } catch (Exception ex) {
-            // Handle case where API fails or record is not found
-            currencyExchangeResponse.setRate(0.0);
-            currencyExchangeResponse.setConvertedAmount(0.0);
-            currencyExchangeResponse.setMessage("No data found: " + ex.getMessage());
-        }
-
-        // Return the response entity
-        return ResponseEntity.ok(currencyExchangeResponse);
-    }
-
-    }
