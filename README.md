@@ -39,11 +39,13 @@ Access the API:
 Visit below URL to access the APIs endpoints.
 
 http://localhost:8080/currency-calculation/from/SGD/to/AUD/amount/100
+
 http://localhost:8000/currency-rate/from/SGD/to/AUD
 
 Visit below URL to access the APIs documentation
 
 http://localhost:8080/swagger-ui/index.html
+
 http://localhost:8000/swagger-ui/index.html
 
 
