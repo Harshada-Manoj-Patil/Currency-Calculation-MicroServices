@@ -4,12 +4,12 @@ This project is developed using the Spring Boot framework to build Java microser
  
 ## Features ##
 
-1. REST APIs for microservice for currency calculation
+1. REST API for currency calculation
 
 /currency-calculation/from/{from}/to/{to}/amount/{amount}
 
  
-2. REST APIs for Exchange microservice to return exchange rates
+2. REST API to return exchange rates
    /currency-rate/from/{from}/to/{to}
    
  
