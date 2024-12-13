@@ -8,10 +8,10 @@ public class Currency {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
-    @Column(name = "from")
-    private String from;
     @Column(name = "to")
     private String to;
+    @Column(name = "from")
+    private String from;
 
     @Column(name = "rate")
     private double rate;
